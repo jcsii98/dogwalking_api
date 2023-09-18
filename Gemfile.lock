@@ -88,8 +88,10 @@ GEM
       rails (>= 4.2.0, < 7.1)
     diff-lcs (1.5.0)
     docile (1.4.0)
-    doorkeeper (5.6.6)
-      railties (>= 5)
+    dotenv (2.8.1)
+    dotenv-rails (2.8.1)
+      dotenv (= 2.8.1)
+      railties (>= 3.2)
     erubi (1.12.0)
     factory_bot (6.2.1)
       activesupport (>= 5.0.0)
@@ -229,7 +231,7 @@ DEPENDENCIES
   debug
   devise
   devise_token_auth
-  doorkeeper
+  dotenv-rails
   factory_bot_rails
   faker
   httparty

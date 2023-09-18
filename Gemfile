@@ -50,6 +50,7 @@ group :development, :test do
   gem 'simplecov'
   gem 'faker'
   gem 'shoulda-matchers'
+  gem 'dotenv-rails'
 end
 
 group :development do
