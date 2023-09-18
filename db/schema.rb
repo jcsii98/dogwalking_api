@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_09_17_074149) do
+ActiveRecord::Schema[7.0].define(version: 2023_09_18_030019) do
   create_table "admins", force: :cascade do |t|
     t.string "provider", default: "email", null: false
     t.string "uid", default: "", null: false
@@ -34,6 +34,20 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_17_074149) do
     t.index ["email"], name: "index_admins_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admins_on_reset_password_token", unique: true
     t.index ["uid", "provider"], name: "index_admins_on_uid_and_provider", unique: true
+  end
+
+  create_table "dog_profiles", force: :cascade do |t|
+    t.string "name"
+    t.string "breed"
+    t.integer "age"
+    t.string "sex"
+    t.integer "weight"
+    t.boolean "hidden"
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "archived"
+    t.index ["user_id"], name: "index_dog_profiles_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -63,4 +77,5 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_17_074149) do
     t.index ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true
   end
 
+  add_foreign_key "dog_profiles", "users"
 end
