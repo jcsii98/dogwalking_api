@@ -8,8 +8,13 @@ Rails.application.routes.draw do
 
   namespace :admin do
     resources :users, only: [:index, :show]
+    resources :pending_users, only: [:index, :show, :update]
   end
 
+  resource :user, only: [:show, :update]
+
+  resources :dog_profiles
+  resources :dog_walking_jobs
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Defines the root path route ("/")
