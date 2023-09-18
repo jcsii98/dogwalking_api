@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_09_18_030019) do
+ActiveRecord::Schema[7.0].define(version: 2023_09_18_051540) do
   create_table "admins", force: :cascade do |t|
     t.string "provider", default: "email", null: false
     t.string "uid", default: "", null: false
@@ -50,6 +50,29 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_18_030019) do
     t.index ["user_id"], name: "index_dog_profiles_on_user_id"
   end
 
+  create_table "dog_walking_jobs", force: :cascade do |t|
+    t.string "name"
+    t.integer "wgr1"
+    t.integer "wgr2"
+    t.integer "wgr3"
+    t.boolean "hidden"
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "archived"
+    t.index ["user_id"], name: "index_dog_walking_jobs_on_user_id"
+  end
+
+  create_table "schedules", force: :cascade do |t|
+    t.integer "dog_walking_job_id", null: false
+    t.integer "day"
+    t.time "start_time"
+    t.time "end_time"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["dog_walking_job_id"], name: "index_schedules_on_dog_walking_job_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "provider", default: "email", null: false
     t.string "uid", default: "", null: false
@@ -78,4 +101,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_18_030019) do
   end
 
   add_foreign_key "dog_profiles", "users"
+  add_foreign_key "dog_walking_jobs", "users"
+  add_foreign_key "schedules", "dog_walking_jobs"
 end

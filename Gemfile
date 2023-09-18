@@ -11,6 +11,7 @@ gem 'devise_token_auth'
 gem 'devise'
 gem 'rack-cors', :require => 'rack/cors'
 
+
 # Use sqlite3 as the database for Active Record
 gem "sqlite3", "~> 1.4"
 
