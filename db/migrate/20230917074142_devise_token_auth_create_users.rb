@@ -33,8 +33,11 @@ class DeviseTokenAuthCreateUsers < ActiveRecord::Migration[7.0]
       t.string :email
       t.string :kind
       t.string :status, default: "pending"
-      t.decimal :latitude, precision: 9, scale: 7
-      t.decimal :longitude, precision: 9, scale: 7
+      t.string :street_address
+      t.string :city
+      t.string :state
+      t.string :country
+      t.string :cached_geocode
 
       ## Tokens
       t.text :tokens

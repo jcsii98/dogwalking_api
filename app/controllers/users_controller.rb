@@ -8,20 +8,16 @@ class UsersController < ApplicationController
 
     def update
         user = current_user
-        if user.kind.present?
-            render json: { message: "kind has already been set" }
+        if user.update(user_params)
+            render json: user
         else
-            if user.update(user_params)
-                render json: user
-            else
-                render json: { errors: user.errors }, status: :unprocessable_entity
-            end
+            render json: { errors: user.errors }, status: :unprocessable_entity
         end
     end
 
     private
 
     def user_params
-        params.require(:user).permit(:kind)
+        params.require(:user).permit(:kind, :name, :street_address, :city, :state, :country)
     end
 end

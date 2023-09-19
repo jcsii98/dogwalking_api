@@ -8,6 +8,7 @@ class CreateDogWalkingJobs < ActiveRecord::Migration[7.0]
       t.boolean :hidden
 
       t.references :user, null: false, foreign_key: true
+      
       t.timestamps
     end
   end

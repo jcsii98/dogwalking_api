@@ -7,6 +7,7 @@ class CreateDogProfiles < ActiveRecord::Migration[7.0]
       t.string :sex
       t.integer :weight
       t.boolean :hidden
+
       t.references :user, null: false, foreign_key: true
 
       t.timestamps

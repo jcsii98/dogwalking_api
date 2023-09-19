@@ -16,17 +16,6 @@ class DogProfilesController < ApplicationController
     def create
         dog_profile = current_user.dog_profiles.new(dog_profile_params)
 
-        # geocode provided location before saving
-        location = params [:dog_profile][:location]
-        geocoded_location = GeocodingService.geocode_location(location)
-
-        if geocoded_location.key?(:error)
-            render json: { errors: ['Location not found'] }, status: :unprocessable_entity
-            return
-        end
-
-        dog_profile.location = geocoded_location
-
         if dog_profile.save
             render json: dog_profile, status: :created
         else
