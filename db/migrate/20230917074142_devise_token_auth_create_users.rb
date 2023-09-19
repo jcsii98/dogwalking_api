@@ -3,14 +3,14 @@ class DeviseTokenAuthCreateUsers < ActiveRecord::Migration[7.0]
     
     create_table(:users) do |t|
       ## Required
-      t.string :provider, :null => false, :default => "email"
-      t.string :uid, :null => false, :default => ""
+      t.text :provider, :null => false, :default => "email"
+      t.text :uid, :null => false, :default => ""
 
       ## Database authenticatable
-      t.string :encrypted_password, :null => false, :default => ""
+      t.text :encrypted_password, :null => false, :default => ""
 
       ## Recoverable
-      t.string   :reset_password_token
+      t.text   :reset_password_token
       t.datetime :reset_password_sent_at
       t.boolean  :allow_password_change, :default => false
 
@@ -18,26 +18,26 @@ class DeviseTokenAuthCreateUsers < ActiveRecord::Migration[7.0]
       t.datetime :remember_created_at
 
       ## Confirmable
-      t.string   :confirmation_token
+      t.text   :confirmation_token
       t.datetime :confirmed_at
       t.datetime :confirmation_sent_at
-      t.string   :unconfirmed_email # Only if using reconfirmable
+      t.text   :unconfirmed_email # Only if using reconfirmable
 
       ## Lockable
       # t.integer  :failed_attempts, :default => 0, :null => false # Only if lock strategy is :failed_attempts
-      # t.string   :unlock_token # Only if unlock strategy is :email or :both
+      # t.text   :unlock_token # Only if unlock strategy is :email or :both
       # t.datetime :locked_at
 
       ## User Info
-      t.string :name
-      t.string :email
-      t.string :kind
-      t.string :status, default: "pending"
-      t.string :street_address
-      t.string :city
-      t.string :state
-      t.string :country
-      t.string :cached_geocode
+      t.text :name
+      t.text :email
+      t.text :kind
+      t.text :status, default: "pending"
+      t.text :street_address
+      t.text :city
+      t.text :state
+      t.text :country
+      t.text :cached_geocode
 
       ## Tokens
       t.text :tokens
