@@ -16,6 +16,8 @@ Rails.application.routes.draw do
 
   resources :dog_profiles
   resources :dog_walking_jobs
+
+  get '/user_search', to: 'users_search#index', as: 'user_search'
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Defines the root path route ("/")

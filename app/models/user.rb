@@ -17,6 +17,8 @@ class User < ActiveRecord::Base
 
   has_many :dog_walking_jobs
 
+
+
   private
   
   def address_attributes_changed?
