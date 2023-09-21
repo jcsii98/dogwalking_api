@@ -10,26 +10,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_09_18_051540) do
+ActiveRecord::Schema[7.0].define(version: 2023_09_21_073211) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "admins", force: :cascade do |t|
-    t.string "provider", default: "email", null: false
-    t.string "uid", default: "", null: false
-    t.string "encrypted_password", default: "", null: false
-    t.string "reset_password_token"
+    t.text "provider", default: "email", null: false
+    t.text "uid", default: "", null: false
+    t.text "encrypted_password", default: "", null: false
+    t.text "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.boolean "allow_password_change", default: false
     t.datetime "remember_created_at"
-    t.string "confirmation_token"
+    t.text "confirmation_token"
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
-    t.string "unconfirmed_email"
-    t.string "name"
-    t.string "nickname"
-    t.string "image"
-    t.string "email"
+    t.text "unconfirmed_email"
+    t.text "name"
+    t.text "nickname"
+    t.text "image"
+    t.text "email"
     t.text "tokens"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -39,19 +39,37 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_18_051540) do
     t.index ["uid", "provider"], name: "index_admins_on_uid_and_provider", unique: true
   end
 
+  create_table "booking_dog_profiles", force: :cascade do |t|
+    t.bigint "booking_id", null: false
+    t.bigint "dog_profile_id", null: false
+    t.boolean "archived", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["booking_id"], name: "index_booking_dog_profiles_on_booking_id"
+    t.index ["dog_profile_id"], name: "index_booking_dog_profiles_on_dog_profile_id"
+  end
+
+  create_table "bookings", force: :cascade do |t|
+    t.bigint "dog_walking_job_id", null: false
+    t.date "date"
+    t.decimal "amount"
+    t.string "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.integer "duration"
+    t.index ["dog_walking_job_id"], name: "index_bookings_on_dog_walking_job_id"
+    t.index ["user_id"], name: "index_bookings_on_user_id"
+  end
+
   create_table "dog_profiles", force: :cascade do |t|
-    t.string "name"
-    t.string "breed"
+    t.text "name"
+    t.text "breed"
     t.integer "age"
-    t.string "sex"
+    t.text "sex"
     t.integer "weight"
     t.boolean "hidden"
-    t.string "street_address"
-    t.string "city"
-    t.string "state"
-    t.string "country"
-    t.string "cached_geocode"
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "archived", default: false
@@ -59,17 +77,15 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_18_051540) do
   end
 
   create_table "dog_walking_jobs", force: :cascade do |t|
-    t.string "name"
+    t.text "name"
     t.integer "wgr1"
     t.integer "wgr2"
     t.integer "wgr3"
+    t.integer "wgs1"
+    t.integer "wgs2"
+    t.integer "wgs3"
     t.boolean "hidden"
-    t.string "street_address"
-    t.string "city"
-    t.string "state"
-    t.string "country"
-    t.string "cached_geocode"
-    t.integer "user_id", null: false
+    t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "archived", default: false
@@ -77,7 +93,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_18_051540) do
   end
 
   create_table "schedules", force: :cascade do |t|
-    t.integer "dog_walking_job_id", null: false
+    t.bigint "dog_walking_job_id", null: false
     t.integer "day"
     t.time "start_time"
     t.time "end_time"
@@ -87,26 +103,26 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_18_051540) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.string "provider", default: "email", null: false
-    t.string "uid", default: "", null: false
-    t.string "encrypted_password", default: "", null: false
-    t.string "reset_password_token"
+    t.text "provider", default: "email", null: false
+    t.text "uid", default: "", null: false
+    t.text "encrypted_password", default: "", null: false
+    t.text "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.boolean "allow_password_change", default: false
     t.datetime "remember_created_at"
-    t.string "confirmation_token"
+    t.text "confirmation_token"
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
-    t.string "unconfirmed_email"
-    t.string "name"
-    t.string "email"
-    t.string "kind"
-    t.string "status", default: "pending"
-    t.string "street_address"
-    t.string "city"
-    t.string "state"
-    t.string "country"
-    t.string "cached_geocode"
+    t.text "unconfirmed_email"
+    t.text "name"
+    t.text "email"
+    t.text "kind"
+    t.text "status", default: "pending"
+    t.text "street_address"
+    t.text "city"
+    t.text "state"
+    t.text "country"
+    t.text "cached_geocode"
     t.text "tokens"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -116,6 +132,10 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_18_051540) do
     t.index ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true
   end
 
+  add_foreign_key "booking_dog_profiles", "bookings"
+  add_foreign_key "booking_dog_profiles", "dog_profiles"
+  add_foreign_key "bookings", "dog_walking_jobs"
+  add_foreign_key "bookings", "users"
   add_foreign_key "dog_profiles", "users"
   add_foreign_key "dog_walking_jobs", "users"
   add_foreign_key "schedules", "dog_walking_jobs"

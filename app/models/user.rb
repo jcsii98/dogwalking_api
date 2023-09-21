@@ -17,7 +17,7 @@ class User < ActiveRecord::Base
 
   has_many :dog_walking_jobs
 
-
+  has_many :bookings
 
   private
   
