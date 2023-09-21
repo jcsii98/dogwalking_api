@@ -3,9 +3,22 @@ class BookingsController < ApplicationController
     before_action :set_booking, only: [:update, :destroy, :show]
 
     def index
-        @bookings = current_user.bookings
-        render json: @bookings
+        if current_user.kind == "2"
+            @bookings = current_user.bookings
+            render json: @bookings
+        else
+            dog_walking_job = current_user.dog_walking_jobs.find_by(id: params[:dog_walking_job_id])
+            
+            if dog_walking_job
+                @bookings = dog_walking_job.bookings
+                render json: @bookings
+            else
+                # Handle the case where the user doesn't have a dog_walking_job
+                render json: { error: "You are not associated with any dog_walking_job." }, status: :unprocessable_entity
+            end
+        end
     end
+
 
     def create
         @booking = current_user.bookings.build(booking_params)
@@ -23,22 +36,36 @@ class BookingsController < ApplicationController
     end
 
     def update
-        
-        if @booking.update(booking_params)
-            render json: { status: 'success', data: @booking }
+        if current_user.kind == "2"
+            if @booking.status == 'approved'
+                render json: { status: 'error', message: 'cannot edit an approved booking' }, status: :forbidden
+                return
+            else
+                if @booking.update(booking_params)
+                    render json: { status: 'success', data: @booking }
+                else
+                    render json: { status: 'error', errors: @booking.errors.full_messages }, status: :unprocessable_entity
+                end
+            end
         else
-            render json: { status: 'error', errors: @booking.errors.full_messages }, status: :unprocessable_entity
+            if @booking.update(status: 'approved')
+                render json: { status: 'success', message: 'booking approved' }, status: :ok
+            else
+                render json: { status: 'error', errors: @booking.errors.full_messages }, status: :unprocessable_entity
+            end
         end
-
     end
 
     def destroy
-        if @booking.update(archived: true)
-            render json: { status: 'success', message: 'Booking has been archived' }
+        if current_user.kind == "2"
+            if @booking.update(archived: true)
+                render json: { status: 'success', message: 'Booking has been archived' }
+            else
+                render json: { status: 'error', errors: @booking.errors.full_messages }, status: :unprocessable_entity
+            end
         else
-            render json: { status: 'error', errors: @booking.errors.full_messages }, status: :unprocessable_entity
+            render json: { message: 'Cannot delete booking' }, status: :forbidden
         end
-        
     end
 
     private
@@ -54,6 +81,7 @@ class BookingsController < ApplicationController
         :amount,
         :status,
         :duration,
+        :archived,
         booking_dog_profiles_attributes: [:dog_profile_id]
         )
     end
