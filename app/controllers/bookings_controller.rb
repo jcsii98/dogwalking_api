@@ -32,7 +32,11 @@ class BookingsController < ApplicationController
     def show
         
         @dog_profiles = @booking.dog_profiles
-        render json: @dog_profiles
+        
+        render json: {
+            booking: @booking,
+            dog_profiles: @dog_profiles
+        }
     end
 
     def update

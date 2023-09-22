@@ -18,7 +18,9 @@ Rails.application.routes.draw do
   resources :dog_walking_jobs
 
   resources :bookings, only: [:index, :create, :show, :update, :destroy] do
-    resource :chatroom, only: [:show, :create, :update, :destroy], controller: 'chatrooms'
+    resource :chatroom, only: [:show] do
+      post 'messages', to: 'chatrooms#create_message'
+    end
   end
 
   get '/user_search', to: 'users_search#index', as: 'user_search'

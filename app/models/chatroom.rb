@@ -1,6 +1,6 @@
 class Chatroom < ApplicationRecord
   belongs_to :booking
-
+  has_many :messages, dependent: :destroy
   before_create :set_owner_and_walker_users
 
   private
