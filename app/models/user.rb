@@ -1,24 +1,22 @@
 # frozen_string_literal: true
 
 class User < ActiveRecord::Base
-  before_save :geocode_address, if: :address_attributes_changed?
   extend Devise::Models
-  
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable, :confirmable
   include DeviseTokenAuth::Concerns::User
 
-  validates :kind, inclusion: { in: %w(1 2), message: "must be '1' or '2'" }, if: -> { kind.present? }
+  before_save :geocode_address, if: :address_attributes_changed?
 
-  
   has_many :dog_profiles
 
   has_many :dog_walking_jobs
 
   has_many :bookings
 
+  validates :kind, inclusion: { in: %w(1 2), message: "must be '1' or '2'" }, if: -> { kind.present? }
   private
   
   def address_attributes_changed?
@@ -26,6 +24,7 @@ class User < ActiveRecord::Base
   end
   
   def geocode_address
+    
     address = [street_address, city, state, country].compact.join(', ')
     Rails.logger.debug("Geocoding address... #{address}")
     
