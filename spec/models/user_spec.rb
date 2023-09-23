@@ -67,7 +67,5 @@ RSpec.describe User, type: :model do
 
       expect(user.cached_geocode).to eq('latitude,longitude')
     end
-
-    # ...
   end
 end

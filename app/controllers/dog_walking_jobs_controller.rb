@@ -32,7 +32,7 @@ class DogWalkingJobsController < ApplicationController
 
     def update
         if @dog_walking_job.update(dog_walking_job_params)
-            render json: { status: 'success', data: @dog_walking_job}
+            render json: { status: 'success', data: @dog_walking_job }
         else
             render json: { status: 'error', errors: @dog_walking_job.errors.full_messages }, status: :unprocessable_entity
         end
