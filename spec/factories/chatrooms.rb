@@ -1,5 +1,5 @@
 FactoryBot.define do
   factory :chatroom do
-    booking { nil }
+    association :booking, factory: :booking
   end
 end

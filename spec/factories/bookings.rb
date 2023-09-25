@@ -1,6 +1,7 @@
 FactoryBot.define do
   factory :booking do
-    dog_walking_job { nil }
+    association :dog_walking_job
+    association :user, factory: :user
     date { "2023-09-21" }
     amount { "9.99" }
     status { "MyString" }
