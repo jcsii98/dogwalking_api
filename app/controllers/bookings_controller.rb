@@ -31,13 +31,14 @@ class BookingsController < ApplicationController
     end
 
     def show
-        @dog_profiles = @booking.dog_profiles
+        @booking_dog_profiles = @booking.booking_dog_profiles
         
         render json: {
             booking: @booking,
-            dog_profiles: @dog_profiles
+            booking_dog_profiles: @booking_dog_profiles.map { |bdp| { id: bdp.id, dog_profile: bdp.dog_profile } }
         }
     end
+
 
     def update
         if current_user.kind == "2"
@@ -46,6 +47,7 @@ class BookingsController < ApplicationController
                 return
             else
                 if @booking.update(booking_params)
+                    @booking.save
                     render json: { status: 'success', data: @booking }
                 else
                     render json: { status: 'error', errors: @booking.errors.full_messages }, status: :unprocessable_entity
@@ -86,7 +88,7 @@ class BookingsController < ApplicationController
         :status,
         :duration,
         :archived,
-        booking_dog_profiles_attributes: [:dog_profile_id]
+        booking_dog_profiles_attributes: [:id, :dog_profile_id, :_destroy]
         )
     end
 

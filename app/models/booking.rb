@@ -9,7 +9,7 @@ class Booking < ApplicationRecord
   after_create :create_chatroom
   before_save :calculate_billing_amount
 
-  accepts_nested_attributes_for :booking_dog_profiles
+  accepts_nested_attributes_for :booking_dog_profiles, allow_destroy: true
 
   private
 
@@ -18,9 +18,10 @@ class Booking < ApplicationRecord
   end
 
   def calculate_billing_amount
-    if dog_profiles.any?
+    if booking_dog_profiles.any?
       total_amount = 0
-      dog_profiles.each do |dog_profile|
+      booking_dog_profiles.each do |booking_dog_profile|
+        dog_profile = booking_dog_profile.dog_profile
         weight = dog_profile.weight
         job = dog_walking_job
 
