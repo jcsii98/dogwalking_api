@@ -21,7 +21,8 @@ class BookingsController < ApplicationController
 
 
     def create
-        @booking = current_user.bookings.build(booking_params)
+        @booking = current_user.bookings.create(booking_params)
+        
         if @booking.save
             render json: @booking, status: :created
         else
@@ -30,7 +31,6 @@ class BookingsController < ApplicationController
     end
 
     def show
-        
         @dog_profiles = @booking.dog_profiles
         
         render json: {
