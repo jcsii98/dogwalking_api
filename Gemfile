@@ -12,6 +12,9 @@ gem 'devise'
 gem 'rack-cors', :require => 'rack/cors'
 gem 'geocoder'
 
+# deploy fix uninitialized constant dotenv
+gem 'dotenv-rails'
+
 # Use Postgres as the database for Active Record
 gem 'pg'
 
@@ -50,7 +53,6 @@ group :development, :test do
   gem 'simplecov'
   gem 'faker'
   gem 'shoulda-matchers'
-  gem 'dotenv-rails'
 end
 
 group :development do
