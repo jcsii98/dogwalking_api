@@ -6,5 +6,6 @@ FactoryBot.define do
     wgr2 { 1 }
     wgr3 { 1 }
     hidden { false }
+    archived { false }
   end
 end

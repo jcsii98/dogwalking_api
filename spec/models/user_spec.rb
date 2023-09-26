@@ -7,6 +7,7 @@ RSpec.describe User, type: :model do
         email: 'user@example.com',
         password: 'password',
         kind: '1',
+        name: 'John Appleseed'
       )
       expect(user).to be_valid
     end
@@ -57,6 +58,7 @@ RSpec.describe User, type: :model do
       user = User.new(
         email: 'user@example.com',
         password: 'password',
+        name: 'John Appleseed',
         street_address: '123 Main St',
         city: 'Random City',
         state: 'Random',
