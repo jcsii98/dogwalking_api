@@ -16,6 +16,7 @@ class User < ActiveRecord::Base
 
   has_many :bookings
 
+  validates :name, presence: true, length: { minimum: 1 }
   validates :kind, inclusion: { in: %w(1 2), message: "must be '1' or '2'" }, if: -> { kind.present? }
   private
   

@@ -13,7 +13,7 @@ Rails.application.routes.draw do
   end
 
   resource :user, only: [:show, :update]
-
+ 
   resources :dog_profiles
   resources :dog_walking_jobs do
     resources :schedules
