@@ -18,6 +18,4 @@ test:
 
 production:
   <<: *default
-  database: dogwalking_api_production
-  username:
-  password:
+  url: <%= ENV['DATABASE_URL'] %>
