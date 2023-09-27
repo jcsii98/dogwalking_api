@@ -182,9 +182,124 @@ RSpec.describe DogProfilesController, type: :controller do
                 expect(response_json['data']['breed']).to eq('Updated Breed')
             end
         end
+
+        context 'when a user is not authenticated' do
+            before do
+                put :update, params: { id: dog_profile.id, dog_profile: updated_attributes }
+            end
+
+            it 'responds with a 401 status code' do
+                expect(response).to have_http_status(401)
+            end
+
+            it 'responds with an error' do
+                errors_json = JSON.parse(response.body)
+
+                expect(errors_json['errors']).not_to be_empty
+            end
+
+            it 'does not update the profile attributes' do
+                request.headers.merge!(user.create_new_auth_token)
+                get :show, params: { id: dog_profile.id }
+
+                response_json = JSON.parse(response.body)
+
+                expect(response_json['data']['name']).to eq('Nala')
+            end
+        end
+
+        context 'when a user is authenticated but has the wrong kind' do
+            let(:wrong_kind_user) { create(:user, kind: '1') }
+            let(:dog_profile) { create(:dog_profile, user: wrong_kind_user, name: 'Nala') }
+            before do
+                request.headers.merge!(wrong_kind_user.create_new_auth_token)
+                put :update, params: { id: dog_profile.id, dog_profile: updated_attributes }
+            end
+
+            it 'responds with a 403 status code' do
+                expect(response).to have_http_status(403)
+            end
+
+            it 'responds with an error' do
+                errors_json = JSON.parse(response.body)
+
+                expect(errors_json['message']).not_to be_empty
+            end
+
+            it 'does not update the profile attributes' do
+                request.headers.merge!(wrong_kind_user.create_new_auth_token)
+                get :show, params: { id: dog_profile.id }
+
+                response_json = JSON.parse(response.body)
+
+                expect(response_json['data']['name']).to eq('Nala')
+            end
+        end
     end
 
     describe 'DELETE #destroy' do
+        let(:user) { create(:user, kind: '2') }
+        let(:dog_profile) { create(:dog_profile, user: user) }
         
+        context 'when a user is authenticated' do
+            before do
+                request.headers.merge!(user.create_new_auth_token)
+                delete :destroy, params: { id: dog_profile.id }
+            end
+            
+            it 'returns a 200 status code' do
+                expect(response).to have_http_status(200)
+            end
+
+            it 'returns a success message and status' do
+                response_json = JSON.parse(response.body)
+
+                expect(response_json['status']).to eq('success')
+                expect(response_json['message']).to eq('Dog Profile has been archived')
+            end
+        end
+
+        context 'when a user is not authenticated' do
+            before do
+                delete :destroy, params: { id: dog_profile.id }
+            end
+
+            it 'returns a 401 status code' do
+                expect(response).to have_http_status(401)
+            end
+
+            it 'returns an error' do
+                errors_json = JSON.parse(response.body)
+
+                expect(errors_json['errors']).not_to be_empty
+            end
+
+            it 'does not delete the dog profile' do
+                expect(DogProfile.count).to eq(1)
+            end
+        end
+
+        context 'when a user is authenticated but has the wrong kind' do
+            let(:wrong_kind_user) { create(:user, kind: '1') }
+            let(:dog_profile) { create(:dog_profile, user: wrong_kind_user, name: 'Nala') }
+            before do
+                request.headers.merge!(wrong_kind_user.create_new_auth_token)
+                delete :destroy, params: { id: dog_profile.id }
+            end
+
+            it 'returns a 403 status code' do
+                expect(response).to have_http_status(403)
+            end
+
+            it 'returns an error' do
+                errors_json = JSON.parse(response.body)
+
+                expect(errors_json['message']).not_to be_empty
+            end
+
+            it 'does not delete the dog profile' do
+                expect(DogProfile.count).to eq(1)
+            end
+        end
     end
 end
