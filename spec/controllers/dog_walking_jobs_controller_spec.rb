@@ -191,8 +191,8 @@ RSpec.describe DogWalkingJobsController, type: :controller do
     end
 
     describe 'GET #show' do
-        context 'when a user is authenticated and has the right kind' do
-            let(:user) { create(:user, kind: '1') }
+        context 'when a user is authenticated' do
+            let(:user) { create(:user) }
             let(:dog_walking_job_1) { build(:dog_walking_job, user: user) }
             let(:dog_walking_job_2) { build(:dog_walking_job, user: user) }
 
@@ -215,7 +215,7 @@ RSpec.describe DogWalkingJobsController, type: :controller do
         end
 
         context 'when the user is not authenticated' do
-            let(:user) { create(:user, kind: '1') }
+            let(:user) { create(:user) }
             let(:dog_walking_job) { build(:dog_walking_job, user: user) }
 
             before do
@@ -233,15 +233,176 @@ RSpec.describe DogWalkingJobsController, type: :controller do
                 expect(errors_json['errors']).not_to be_empty
             end
         end
+    end
 
-        context 'when the user is authenticated but has the wrong kind' do
-            let(:user) { create(:user, kind: '2') }
-            let(:dog_walking_job) { build(:dog_walking_job, user: user) }
-
+    describe 'PATCH #update' do
+        context 'when a user is authenticated with the right kind' do
+            let(:user) { create(:user, kind: '1') }
+            let(:dog_walking_job) { build(:dog_walking_job, user: user, name: "Jose's dog-walking job") }
+            let(:updated_attributes) { { name: 'Updated Name' }}
+            let(:invalid_attributes) { { name: '' }}
             before do
                 dog_walking_job.save!
                 request.headers.merge!(user.create_new_auth_token)
+            end
+
+            context 'with valid params' do
+                before do
+                    patch :update, params: { id: dog_walking_job.id, dog_walking_job: updated_attributes }
+                end
+
+                it 'returns a 200 status code' do
+                    expect(response).to have_http_status(200)
+                end
+
+                it 'returns a success status and the updated dog profile' do
+                    response_json = JSON.parse(response.body)
+
+                    expect(response_json['status']).to eq('success')
+                    expect(response_json['data']['name']).to eq('Updated Name')
+                end
+            end
+
+            context 'with invalid params' do
+                before do
+                    patch :update, params: { id: dog_walking_job.id, dog_walking_job: invalid_attributes }
+                end
+
+                it 'returns a 422 status code' do
+                    expect(response).to have_http_status(422)
+                end
+
+                it 'returns an error and error status' do
+                    errors_json = JSON.parse(response.body)
+
+                    expect(errors_json['status']).to eq('error')
+                    expect(errors_json['errors']).not_to be_empty
+                end
+            end
+        end
+
+        context 'when a user is not authenticated' do
+            let(:user) { create(:user, kind: '1') }
+            let(:dog_walking_job) { build(:dog_walking_job, user: user, name: "Jose's dog-walking job") }
+            let(:updated_attributes) { { name: 'Updated Name' }}
+            before do
+                dog_walking_job.save!
+                patch :update, params: { id: dog_walking_job.id, dog_walking_job: updated_attributes }
+            end
+
+            it 'returns a 401 status code' do
+                expect(response).to have_http_status(401)
+            end
+
+            it 'returns an error' do
+                errors_json = JSON.parse(response.body)
+
+                expect(errors_json['errors']).not_to be_empty
+            end
+
+            it 'does not update the attributes' do
+                request.headers.merge!(user.create_new_auth_token)
                 get :show, params: { id: dog_walking_job.id }
+
+                response_json = JSON.parse(response.body)
+
+                expect(response_json['data']['name']).to eq("Jose's dog-walking job")
+            end
+        end
+
+        context 'when a user is authenticated but has wrong kind' do
+            let(:user) { create(:user, kind: '2') }
+            let(:dog_walking_job) { build(:dog_walking_job, user: user, name: "Jose's dog-walking job") }
+            let(:updated_attributes) { { name: 'Updated Name' }}
+            before do
+                dog_walking_job.save!
+                request.headers.merge!(user.create_new_auth_token)
+                patch :update, params: { id: dog_walking_job.id, dog_walking_job: updated_attributes }
+            end
+
+            it 'returns a 403 status code' do
+                expect(response).to have_http_status(403)
+            end
+
+            it 'returns an error' do 
+                errors_json = JSON.parse(response.body)
+
+                expect(errors_json['message']).not_to be_empty
+            end
+
+            it 'does not update the attributes' do
+                get :show, params: { id: dog_walking_job.id }
+
+                response_json = JSON.parse(response.body)
+
+                expect(response_json['data']['name']).to eq("Jose's dog-walking job")
+            end
+        end
+    end
+
+    describe 'DELETE #destroy' do
+        let(:user) { create(:user, kind: '1') }
+        let(:dog_walking_job) { build(:dog_walking_job, user: user) }
+        before do
+            dog_walking_job.save!
+        end
+        context 'when a user is authenticated' do
+            before do
+                request.headers.merge!(user.create_new_auth_token)
+                delete :destroy, params: { id: dog_walking_job.id }
+            end
+
+            it 'returns a 200 status code' do
+                expect(response).to have_http_status(200)
+            end
+
+            it 'returns a success status and message' do
+                response_json = JSON.parse(response.body)
+
+                expect(response_json['status']).to eq('success')
+                expect(response_json['message']).to eq('Dog-walking job has been archived')
+            end
+
+            it 'archives the job' do
+                get :show, params: { id: dog_walking_job.id }
+
+                response_json = JSON.parse(response.body)
+
+                expect(response_json['data']['archived']).to eq(true)
+            end
+        end
+
+        context 'when a user is not authenticated' do
+            before do
+                delete :destroy, params: { id: dog_walking_job.id }
+            end
+
+            it 'returns a 401 status code' do
+                expect(response).to have_http_status(401)
+            end
+
+            it 'returns an error' do
+                errors_json = JSON.parse(response.body)
+
+                expect(errors_json['errors']).not_to be_empty
+            end
+
+            it 'does not archive the job' do
+                request.headers.merge!(user.create_new_auth_token)
+                get :show, params: { id: dog_walking_job.id }
+
+                response_json = JSON.parse(response.body)
+
+                expect(response_json['data']['archived']).to eq(false)
+            end
+        end
+
+        context 'when a user is authenticated with the wrong kind' do
+            let(:wrong_kind_user) { create(:user) }
+            let(:dog_walking_job) { build(:dog_walking_job, user: wrong_kind_user) }
+            before do
+                request.headers.merge!(wrong_kind_user.create_new_auth_token)
+                delete :destroy, params: { id: dog_walking_job.id }
             end
 
             it 'returns a 403 status code' do
@@ -253,171 +414,14 @@ RSpec.describe DogWalkingJobsController, type: :controller do
 
                 expect(errors_json['message']).not_to be_empty
             end
+
+            it 'does not archive the job' do
+                get :show, params: { id: dog_walking_job.id }
+
+                response_json = JSON.parse(response.body)
+
+                expect(response_json['data']['archived']).to eq(false)
+            end
         end
     end
-
-    #     context 'when a user is not authenticated' do
-    #         it 'responds with a 401 status code' do
-    #             get :index
-
-    #             expect(response).to have_http_status(401)
-    #         end
-    #     end
-
-    #     context 'when a user is authenticated but has the wrong kind' do
-    #         let(:user) { create(:user, kind: '1') }
-
-    #         before do
-    #             request.headers.merge!(user.create_new_auth_token)
-    #             get :index
-    #         end
-
-    #         it 'responds with a 403 status code' do
-    #             expect(response).to have_http_status(403)
-    #         end
-    #     end
-    # end
-
-    # describe 'POST #create' do
-    #     let(:valid_params) { { dog_profile: { name: 'Nala', breed: 'American Bully', age: '4', sex: 'F', weight: '60' } } }
-    #     let(:invalid_params) { { dog_profile: { name: '' } } }
-    #     context 'when a user is authenticated and has the correct kind' do
-    #         let(:user) { create(:user, kind: '2') }
-
-    #         before do
-    #             request.headers.merge!(user.create_new_auth_token)
-    #             post :create, params: valid_params
-    #         end
-
-    #         it 'response with a 201 status code' do
-    #             expect(response).to have_http_status(201)
-    #         end
-
-    #         it 'returns the created dog profile' do
-    #             dog_profile = JSON.parse(response.body)
-
-    #             expect(dog_profile['name']).to eq('Nala')
-    #         end
-    #     end
-
-    #     context 'when a user is not authenticated' do
-    #         it 'responds with a 401 status code' do
-    #             post :create, params: valid_params
-
-    #             expect(response).to have_http_status(401)
-    #         end
-    #     end
-
-    #     context 'when a user is authenticated but has the wrong kind' do
-    #         let(:user) { create(:user, kind: '1') }
-
-    #         before do
-    #             request.headers.merge!(user.create_new_auth_token)
-    #             post :create, params: valid_params
-    #         end
-
-    #         it 'responds with a 403 status code' do
-    #             expect(response).to have_http_status(403)
-    #         end
-    #     end
-
-    #     context 'when a user is authenticated and has the correct kind but has invalid params' do
-    #         let(:user) { create(:user, kind: '2') }
-    #         before do
-    #             request.headers.merge!(user.create_new_auth_token)
-    #             post :create, params: invalid_params
-    #         end
-            
-    #         it 'responds with a 422 status code' do
-    #             expect(response).to have_http_status(422)
-    #         end
-
-    #         it 'responds with an error' do
-    #             error_json = JSON.parse(response.body)
-
-    #             expect(error_json['errors']).not_to be_empty
-    #         end
-    #     end
-    # end
-
-    # describe 'GET #show' do
-    #     let(:user) { create(:user, kind: '2') }
-    #     let!(:dog_profile1) { create(:dog_profile, user: user, name: 'Nala') }
-    #     context 'when a user is authenticated' do
-    #         before do
-    #             request.headers.merge!(user.create_new_auth_token)
-    #             get :show, params: { id: dog_profile1.id }
-    #         end
-
-    #         it 'responds with 200 status code' do
-    #             expect(response).to have_http_status(200)
-    #         end
-
-    #         it 'returns the dog profile as JSON' do
-    #             response_json = JSON.parse(response.body)
-
-    #             expect(response_json['data']['name']).to eq('Nala')
-    #         end
-    #     end
-    #     context 'when a user is not authenticated' do
-    #         before do
-    #             get :show, params: { id: dog_profile1.id }
-    #         end
-
-    #         it 'returns a 422 status code' do
-    #             expect(response).to have_http_status(401)
-    #         end
-
-    #         it 'returns an error' do
-    #             error_json = JSON.parse(response.body)
-
-    #             expect(error_json['errors']).not_to be_empty
-    #         end
-    #     end
-
-    #     context 'when a user is authenticated but the dog_profile does not exist' do
-    #         before do
-    #             request.headers.merge!(user.create_new_auth_token)
-    #             get :show, params: { id: dog_profile1.id + 1 }
-    #         end
-
-    #         it 'returns an error' do
-    #             error_json = JSON.parse(response.body)
-
-    #             expect(error_json['message']).to eq("Dog profile not found")
-    #         end
-
-    #         it 'returns a status code 404' do
-    #             expect(response).to have_http_status(404)
-    #         end
-    #     end
-    # end
-
-    # describe 'PUT #update' do
-    #     let(:user) { create(:user, kind: '2') }
-    #     let(:dog_profile) { create(:dog_profile, user: user, name: 'Nala') }
-    #     let(:updated_attributes) { { name: 'Updated Name', breed: 'Updated Breed' } }
-
-    #     context 'when a user is authenticated' do
-    #         before do
-    #             request.headers.merge!(user.create_new_auth_token)
-    #             put :update, params: { id: dog_profile.id, dog_profile: updated_attributes }
-    #         end
-
-    #         it 'responds with 200 status code' do
-    #             expect(response).to have_http_status(200)
-    #         end
-
-    #         it 'returns with the updated values' do
-    #             response_json = JSON.parse(response.body)
-
-    #             expect(response_json['data']['name']).to eq('Updated Name')
-    #             expect(response_json['data']['breed']).to eq('Updated Breed')
-    #         end
-    #     end
-    # end
-
-    # describe 'DELETE #destroy' do
-        
-    # end
 end

@@ -1,6 +1,6 @@
 class DogWalkingJobsController < ApplicationController
     before_action :authenticate_user!
-    before_action :verify_kind
+    before_action :verify_kind, except: [:show]
 
     before_action :set_dog_walking_job, only: [:update, :destroy]
     

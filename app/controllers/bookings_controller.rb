@@ -47,7 +47,6 @@ class BookingsController < ApplicationController
                 return
             else
                 if @booking.update(booking_params)
-                    @booking.save
                     render json: { status: 'success', data: @booking }
                 else
                     render json: { status: 'error', errors: @booking.errors.full_messages }, status: :unprocessable_entity
