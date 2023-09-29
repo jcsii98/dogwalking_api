@@ -8,8 +8,12 @@ class SchedulesController < ApplicationController
             @schedules = @dog_walking_job.schedules.where(hidden: false)
             render json: { data: @schedules }
         else
-            @schedules = @dog_walking_job.schedules
-            render json: { data: @schedules }
+            if current_user == @dog_walking_job.user
+                @schedules = @dog_walking_job.schedules
+                render json: { data: @schedules }
+            else
+                render json: { status: 'error', message: 'You do not have permission to view these schedules.' }, status: :unauthorized
+            end
         end
     end
 
@@ -24,11 +28,18 @@ class SchedulesController < ApplicationController
 
     def show
         @schedule = @dog_walking_job.schedules.find(params[:id])
-        
-        if @schedule
-            render json: { status: 'success', data: @schedule }, status: :ok
+        if current_user.kind == "2"
+            if @schedule.hidden?
+                render json: { status: 'error', message: 'schedule not found' }
+            else
+                render json: { status: 'success', data: @schedule }, status: :ok
+            end
         else
-            render json: { status: 'error', message: 'schedule not found' }
+            if current_user == @dog_walking_job.user
+                render json: { status: 'success', data: @schedule }, status: :ok
+            else
+                render json: { status: 'error', message: 'you are not authorized to access this resource' }, status: :unauthorized 
+            end
         end
     end
 

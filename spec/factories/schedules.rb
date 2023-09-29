@@ -4,5 +4,6 @@ FactoryBot.define do
     day { 1 }
     start_time { "2023-09-18 13:01:38" }
     end_time { "2023-09-18 13:01:38" }
+    hidden { false }
   end
 end
