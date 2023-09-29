@@ -1,6 +1,7 @@
 class ChatroomsController < ApplicationController
     before_action :authenticate_user!
     before_action :set_booking
+    before_action :check_user_association
 
     # GET /bookings/:booking_id/chatroom
     def show
@@ -32,6 +33,12 @@ class ChatroomsController < ApplicationController
 
     def message_params
         params.require(:message).permit(:content)
+    end
+
+    def check_user_association
+        unless @booking.chatroom.user_associated?(current_user)
+            render json: { error: "You're not permitted to view or interact with this chatroom" }, status: :forbidden
+        end
     end
 
 end
