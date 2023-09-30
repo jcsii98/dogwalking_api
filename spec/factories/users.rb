@@ -4,5 +4,6 @@ FactoryBot.define do
     email { Faker::Internet.email }
     password { 'password123' }
     confirmed_at { Time.now }
+    status { 'pending' }
   end
 end
