@@ -24,8 +24,8 @@ class GeocodingService
       else
         { error: 'Location not found' }
       end
-    rescue HTTParty::ExceptionWithResponse => e
-      { error: "Geocoding error: #{e.response}" }
+    rescue HTTParty::ResponseError => e
+      { error: "Geocoding error: #{e.response.body}" }
     rescue StandardError => e
       { error: "Geocoding error: #{e.message}" }
     end

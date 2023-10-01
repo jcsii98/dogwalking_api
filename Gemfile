@@ -53,6 +53,7 @@ group :development, :test do
   gem 'simplecov'
   gem 'faker'
   gem 'shoulda-matchers'
+  gem 'webmock'
 end
 
 group :development do
