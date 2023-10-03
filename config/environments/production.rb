@@ -55,20 +55,30 @@ Rails.application.configure do
   # config.active_job.queue_adapter     = :resque
   # config.active_job.queue_name_prefix = "dogwalking_api_production"
 
-  # Missing host to link to! fix
-  config.action_mailer.default_url_options = { host: 'https://dogwalking-app.onrender.com' }
-
+  # mailtrap
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    address:              'smtp.gmail.com',
-    port:                 587,
-    domain:               'example.com',
-    user_name:            ENV['GMAIL_USERNAME'],
-    password:             ENV["GMAIL_PASSWORD"],
-    authentication:       'plain',
-    enable_starttls_auto: true,
-    open_timeout:         5,
-    read_timeout:         5 }
+    :user_name => 'ab3f4416838fc4',
+    :password => 'fdc9f27465604d',
+    :address => 'sandbox.smtp.mailtrap.io',
+    :host => 'sandbox.smtp.mailtrap.io',
+    :port => '2525',
+    :authentication => :cram_md5
+  }
+  # Missing host to link to! fix
+  config.action_mailer.default_url_options = { host: 'https://dogwalking-api.onrender.com' }
+
+  # config.action_mailer.delivery_method = :smtp
+  # config.action_mailer.smtp_settings = {
+  #   address:              'smtp.gmail.com',
+  #   port:                 587,
+  #   domain:               'example.com',
+  #   user_name:            ENV['GMAIL_USERNAME'],
+  #   password:             ENV["GMAIL_PASSWORD"],
+  #   authentication:       'plain',
+  #   enable_starttls_auto: true,
+  #   open_timeout:         5,
+  #   read_timeout:         5 }
 
   config.action_mailer.perform_caching = false
 
