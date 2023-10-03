@@ -55,6 +55,10 @@ Rails.application.configure do
   # config.active_job.queue_adapter     = :resque
   # config.active_job.queue_name_prefix = "dogwalking_api_production"
 
+  # Missing host to link to! fix
+  config.action_mailer.default_url_options = { host: 'https://dogwalking-app.onrender.com' }
+
+
   config.action_mailer.perform_caching = false
 
   # Ignore bad email addresses and do not raise email delivery errors.
