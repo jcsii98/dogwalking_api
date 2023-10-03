@@ -66,5 +66,5 @@ DeviseTokenAuth.setup do |config|
 
   config.send_confirmation_email = true
   
-  config.default_confirm_success_url = 'https://dogwalking-app.onrender.com'
+  config.default_confirm_success_url = 'https://dogwalking-api.onrender.com'
 end
