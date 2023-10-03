@@ -15,7 +15,7 @@ class Users::ConfirmationsController < Devise::ConfirmationsController
     def show
       super do |resource|
         if resource.errors.empty?
-          redirect_to('http://localhost:5173/confirmed') and return
+          redirect_to 'https://dogwalking-app.onrender.com', allow_other_host: true and return
         end
       end
     end
