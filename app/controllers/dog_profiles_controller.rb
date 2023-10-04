@@ -19,7 +19,7 @@ class DogProfilesController < ApplicationController
         if dog_profile.save
             render json: dog_profile, status: :created
         else
-            render json: { errors: dog_profile.errors }, status: :unprocessable_entity
+            render json: { errors: dog_profile.errors.full_messages }, status: :unprocessable_entity
         end
     end
 
@@ -40,8 +40,8 @@ class DogProfilesController < ApplicationController
     end
 
     def destroy
-        if @dog_profile.update(archived: true)
-            render json: { status: 'success', message: 'Dog Profile has been archived' }
+        if @dog_profile.destroy
+            render json: { status: 'success', message: 'Dog Profile has been deleted' }
         else
             render json: { status: 'error', errors: @dog_profile.errors.full_messages }, status: :unprocessable_entity
         end
