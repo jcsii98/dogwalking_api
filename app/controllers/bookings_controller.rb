@@ -21,7 +21,19 @@ class BookingsController < ApplicationController
 
 
     def create
-        @booking = current_user.bookings.create(booking_params)
+        dog_walking_job = DogWalkingJob.find_by(id: params[:booking][:dog_walking_job_id])
+
+        unless dog_walking_job
+            render json: { error: "Dog-walking Job not found" }, status: :not_found
+            return
+        end
+
+        @booking = current_user.bookings.build(booking_params)
+        @booking.user_owner = current_user
+        @booking.user_walker = dog_walking_job.user
+        @booking.user_owner_name = current_user.name
+        @booking.user_walker_name = dog_walking_job.user.name
+
         
         if @booking.save
             render json: @booking, status: :created

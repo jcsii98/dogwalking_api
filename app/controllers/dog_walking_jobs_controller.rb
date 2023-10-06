@@ -1,15 +1,29 @@
 class DogWalkingJobsController < ApplicationController
     before_action :authenticate_user!
-    before_action :verify_kind, except: [:show]
+    before_action :verify_kind, except: [:show, :index]
 
     before_action :set_dog_walking_job, only: [:update, :destroy]
     
     def index
-        @dog_walking_jobs = current_user.dog_walking_jobs.where(archived: false)
-        if @dog_walking_jobs.empty?
-            render json: { message: "No dog-walking jobs found for this user" }
+        if current_user.kind == "1"
+            @dog_walking_jobs = current_user.dog_walking_jobs.where(archived: false)
+            if @dog_walking_jobs.empty?
+                render json: { message: "No dog-walking jobs found for this user" }
+            else
+                render json: { data: @dog_walking_jobs}
+            end
         else
-            render json: { data: @dog_walking_jobs}
+            specified_user = User.find_by(id: params[:user_id])
+            if specified_user
+                @dog_walking_jobs = specified_user.dog_walking_jobs.where(archived: false)
+                if @dog_walking_jobs.empty?
+                    render json: { message: "No dog-walking jobs found for this user" }
+                else
+                    render json: { data: @dog_walking_jobs }
+                end
+            else
+                render json: { message: "Specified user not found" }, status: :not_found
+            end
         end
     end
 

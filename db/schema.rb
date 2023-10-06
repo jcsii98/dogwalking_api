@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_09_23_024910) do
+ActiveRecord::Schema[7.0].define(version: 2023_10_06_125258) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -59,8 +59,14 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_23_024910) do
     t.bigint "user_id", null: false
     t.integer "duration"
     t.boolean "archived", default: false
+    t.bigint "user_owner_id", null: false
+    t.bigint "user_walker_id", null: false
+    t.string "user_owner_name", null: false
+    t.string "user_walker_name", null: false
     t.index ["dog_walking_job_id"], name: "index_bookings_on_dog_walking_job_id"
     t.index ["user_id"], name: "index_bookings_on_user_id"
+    t.index ["user_owner_id"], name: "index_bookings_on_user_owner_id"
+    t.index ["user_walker_id"], name: "index_bookings_on_user_walker_id"
   end
 
   create_table "chatrooms", force: :cascade do |t|
@@ -159,6 +165,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_09_23_024910) do
   add_foreign_key "booking_dog_profiles", "dog_profiles"
   add_foreign_key "bookings", "dog_walking_jobs"
   add_foreign_key "bookings", "users"
+  add_foreign_key "bookings", "users", column: "user_owner_id"
+  add_foreign_key "bookings", "users", column: "user_walker_id"
   add_foreign_key "chatrooms", "bookings"
   add_foreign_key "chatrooms", "users", column: "owner_user_id"
   add_foreign_key "chatrooms", "users", column: "walker_user_id"

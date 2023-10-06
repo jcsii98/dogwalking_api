@@ -1,7 +1,10 @@
 class Booking < ApplicationRecord
   belongs_to :dog_walking_job
   belongs_to :user
-  
+
+  belongs_to :user_owner, class_name: 'User', foreign_key: 'user_owner_id'
+  belongs_to :user_walker, class_name: 'User', foreign_key: 'user_walker_id'
+
   has_many :booking_dog_profiles, dependent: :destroy, after_remove: :recalculate_billing_amount
   has_many :dog_profiles, through: :booking_dog_profiles
   has_one :chatroom, dependent: :destroy

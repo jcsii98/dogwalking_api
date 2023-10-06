@@ -5,11 +5,11 @@ class SchedulesController < ApplicationController
 
     def index
         if current_user.kind == "2"
-            @schedules = @dog_walking_job.schedules.where(hidden: false)
+            @schedules = @dog_walking_job.schedules.where(hidden: false).order(:day)
             render json: { data: @schedules }
         else
             if current_user == @dog_walking_job.user
-                @schedules = @dog_walking_job.schedules
+                @schedules = @dog_walking_job.schedules.order(:day)
                 render json: { data: @schedules }
             else
                 render json: { status: 'error', message: 'You do not have permission to view these schedules.' }, status: :unauthorized

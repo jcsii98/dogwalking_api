@@ -4,7 +4,7 @@ class CreateBookings < ActiveRecord::Migration[7.0]
       t.references :dog_walking_job, null: false, foreign_key: true
       t.date :date
       t.decimal :amount
-      t.string :status
+      t.string :status, default: 'pending'
 
       t.timestamps
     end
