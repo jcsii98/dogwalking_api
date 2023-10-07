@@ -26,6 +26,9 @@ Rails.application.routes.draw do
   end
 
   get '/user_search', to: 'users_search#index', as: 'user_search'
+
+  mount ActionCable.server => '/cable'
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Defines the root path route ("/")

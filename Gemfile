@@ -11,6 +11,7 @@ gem 'devise_token_auth'
 gem 'devise'
 gem 'rack-cors', :require => 'rack/cors'
 gem 'geocoder'
+gem 'actioncable'
 
 # deploy fix uninitialized constant dotenv
 gem 'dotenv-rails'
