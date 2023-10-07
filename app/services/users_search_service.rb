@@ -22,10 +22,11 @@ class UsersSearchService
     lon_min = user_location.split(',')[1].to_f - (radius * degrees_per_km)
     lon_max = user_location.split(',')[1].to_f + (radius * degrees_per_km)
 
-    nearby_users = User.where(
-      "CAST(SPLIT_PART(cached_geocode, ',', 1) AS FLOAT) BETWEEN ? AND ? AND CAST(SPLIT_PART(cached_geocode, ',', 2) AS FLOAT) BETWEEN ? AND ? AND kind != ? AND status != ?",
-      lat_min, lat_max, lon_min, lon_max, @user.kind, 'pending'
-    )
+    nearby_users = User.joins(:dog_walking_jobs) # Join with dog_walking_jobs
+                      .where(
+                        "CAST(SPLIT_PART(users.cached_geocode, ',', 1) AS FLOAT) BETWEEN ? AND ? AND CAST(SPLIT_PART(users.cached_geocode, ',', 2) AS FLOAT) BETWEEN ? AND ? AND users.kind != ? AND users.status != ?",
+                        lat_min, lat_max, lon_min, lon_max, @user.kind, 'pending'
+                      )
 
     user_lat = user_location.split(',')[0].to_f
     user_lon = user_location.split(',')[1].to_f
@@ -34,7 +35,6 @@ class UsersSearchService
       u_lat = u.cached_geocode.split(',')[0].to_f
       u_lon = u.cached_geocode.split(',')[1].to_f
       dist = haversine_distance(user_lat, user_lon, u_lat, u_lon)
-      
       {
         id: u.id,
         name: u.name,
