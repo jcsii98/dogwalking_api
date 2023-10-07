@@ -74,15 +74,11 @@ class BookingsController < ApplicationController
     end
 
     def destroy
-        if current_user.kind == "2"
-            if @booking.update(archived: true)
-                render json: { status: 'success', message: 'Booking has been archived' }
+            if @booking.destroy
+                render json: { status: 'success', message: 'Booking has been deleted' }
             else
                 render json: { status: 'error', errors: @booking.errors.full_messages }, status: :unprocessable_entity
             end
-        else
-            render json: { message: 'Cannot delete booking' }, status: :forbidden
-        end
     end
 
     private
