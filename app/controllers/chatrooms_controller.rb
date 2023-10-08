@@ -19,11 +19,12 @@ class ChatroomsController < ApplicationController
         @message.user = current_user
 
         if @message.save
-        ChatroomChannel.broadcast_to(@booking.chatroom, @message.as_json(include: { user: { only: [:id, :name] } }))
-        render json: @message, status: :created
+            ChatroomChannel.broadcast_to(@booking.chatroom, { type: 'message', message: @message.as_json(include: { user: { only: [:id, :name] } }) })
+            render json: @message, status: :created
         else
-        render json: @message.errors, status: :unprocessable_entity
+            render json: @message.errors, status: :unprocessable_entity
         end
+
     end
 
     private

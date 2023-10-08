@@ -53,7 +53,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_06_125258) do
     t.bigint "dog_walking_job_id", null: false
     t.date "date"
     t.decimal "amount"
-    t.string "status"
+    t.string "status", default: "pending"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false

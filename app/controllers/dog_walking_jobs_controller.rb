@@ -6,7 +6,7 @@ class DogWalkingJobsController < ApplicationController
     
     def index
         if current_user.kind == "1"
-            @dog_walking_jobs = current_user.dog_walking_jobs.where(archived: false)
+            @dog_walking_jobs = current_user.dog_walking_jobs
             if @dog_walking_jobs.empty?
                 render json: { message: "No dog-walking jobs found for this user" }
             else
@@ -53,8 +53,8 @@ class DogWalkingJobsController < ApplicationController
     end
 
     def destroy
-        if @dog_walking_job.update(archived: true)
-            render json: { status: 'success', message: 'Dog-walking job has been archived' }
+        if @dog_walking_job.destroy
+            render json: { status: 'success', message: 'Dog-walking job has been deleted' }
         else
             render json: { status: 'error', errors: @dog_walking_job.errors.full_messages }, status: :unprocessable_entity
         end

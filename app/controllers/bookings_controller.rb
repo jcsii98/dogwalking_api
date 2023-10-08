@@ -59,6 +59,8 @@ class BookingsController < ApplicationController
                 return
             else
                 if @booking.update(booking_params)
+                    @booking.save
+                    ChatroomChannel.broadcast_to(@booking.chatroom, { type: 'booking_updated', booking: @booking })
                     render json: { status: 'success', data: @booking }
                 else
                     render json: { status: 'error', errors: @booking.errors.full_messages }, status: :unprocessable_entity
@@ -66,6 +68,7 @@ class BookingsController < ApplicationController
             end
         else
             if @booking.update(status: 'approved')
+                ChatroomChannel.broadcast_to(@booking.chatroom, { type: 'booking_approved', booking: @booking })
                 render json: { status: 'success', message: 'booking approved' }, status: :ok
             else
                 render json: { status: 'error', errors: @booking.errors.full_messages }, status: :unprocessable_entity
@@ -74,11 +77,12 @@ class BookingsController < ApplicationController
     end
 
     def destroy
-            if @booking.destroy
-                render json: { status: 'success', message: 'Booking has been deleted' }
-            else
-                render json: { status: 'error', errors: @booking.errors.full_messages }, status: :unprocessable_entity
-            end
+        if @booking.destroy
+            ChatroomChannel.broadcast_to(@booking.chatroom, { type: 'booking_deleted', booking_id: @booking.id })
+            render json: { status: 'success', message: 'Booking has been deleted' }
+        else
+            render json: { status: 'error', errors: @booking.errors.full_messages }, status: :unprocessable_entity
+        end
     end
 
     private
