@@ -1,4 +1,4 @@
-class ChatroomChannel < ApplicationCable::Channel
+class ChatroomChannel < ApplicationCable::Channel::Base
   def subscribed
     chatroom = Chatroom.find(params[:id])
     
@@ -7,12 +7,16 @@ class ChatroomChannel < ApplicationCable::Channel
     
     if chatroom.user_associated?(user)
       stream_for chatroom
+
+      self.class.broadcast_to(chatroom, type: 'user_connected', user: user.name)
     else
       reject
     end
   end
 
   def unsubscribed
-    # Any cleanup needed when channel is unsubscribed
+    chatroom = Chatroom.find(params[:id])
+
+    self.class.broadcast_to(chatroom, type: 'user_disconnected', user: current_user.name)
   end
 end
