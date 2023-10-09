@@ -1,4 +1,4 @@
-class ChatroomChannel < ApplicationCable::Channel::Base
+class ChatroomChannel < ApplicationCable::Channel
   def subscribed
     chatroom = Chatroom.find(params[:id])
     
