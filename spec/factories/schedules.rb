@@ -1,9 +1,11 @@
-FactoryBot.define do
-  factory :schedule do
-    association :dog_walking_job, factory: :dog_walking_job
-    day { 1 }
-    start_time { "2023-09-18 13:01:38" }
-    end_time { "2023-09-18 13:01:38" }
-    hidden { false }
-  end
-end
+# FactoryBot.define do
+#   factory :schedule do
+#     dog_walking_job
+#     day { rand(0..6) } # Assuming 0 is Sunday and 6 is Saturday
+#     start_time { Faker::Time.forward }
+#     end_time { Faker::Time.forward(days=0, period=:evening) }
+#   end
+# end
+
+
+

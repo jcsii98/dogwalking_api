@@ -1,5 +1,7 @@
 FactoryBot.define do
   factory :chatroom do
-    association :booking, factory: :booking
+    booking
+    walker_user_id { create(:user).id }
+    owner_user_id { create(:user).id }
   end
 end

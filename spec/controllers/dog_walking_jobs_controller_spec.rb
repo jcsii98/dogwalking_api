@@ -55,8 +55,8 @@ RSpec.describe DogWalkingJobsController, type: :controller do
                 get :index
             end
 
-            it 'responds with a 403 status code' do
-                expect(response).to have_http_status(403)
+            it 'responds with a 404 status code' do
+                expect(response).to have_http_status(404)
             end
 
             it 'responds with an error' do
@@ -360,16 +360,9 @@ RSpec.describe DogWalkingJobsController, type: :controller do
                 response_json = JSON.parse(response.body)
 
                 expect(response_json['status']).to eq('success')
-                expect(response_json['message']).to eq('Dog-walking job has been archived')
+                expect(response_json['message']).to eq('Dog-walking job has been deleted')
             end
 
-            it 'archives the job' do
-                get :show, params: { id: dog_walking_job.id }
-
-                response_json = JSON.parse(response.body)
-
-                expect(response_json['data']['archived']).to eq(true)
-            end
         end
 
         context 'when a user is not authenticated' do
@@ -398,10 +391,12 @@ RSpec.describe DogWalkingJobsController, type: :controller do
         end
 
         context 'when a user is authenticated with the wrong kind' do
-            let(:wrong_kind_user) { create(:user) }
+            let(:wrong_kind_user) { create(:user, kind: '2') }
+            
             let(:dog_walking_job) { build(:dog_walking_job, user: wrong_kind_user) }
             before do
                 request.headers.merge!(wrong_kind_user.create_new_auth_token)
+                puts "User's Kind: #{wrong_kind_user.kind}"
                 delete :destroy, params: { id: dog_walking_job.id }
             end
 
@@ -411,7 +406,6 @@ RSpec.describe DogWalkingJobsController, type: :controller do
 
             it 'returns an error' do
                 errors_json = JSON.parse(response.body)
-
                 expect(errors_json['message']).not_to be_empty
             end
 

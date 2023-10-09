@@ -56,19 +56,15 @@ class BookingsController < ApplicationController
         if current_user.kind == "2"
             if @booking.status == 'approved'
                 render json: { status: 'error', message: 'cannot edit an approved booking' }, status: :forbidden
-                return
+            elsif @booking.update(booking_params)
+                @booking.save
+                broadcast_booking_updated
             else
-                if @booking.update(booking_params)
-                    @booking.save
-                    ChatroomChannel.broadcast_to(@booking.chatroom, { type: 'booking_updated', booking: @booking })
-                    render json: { status: 'success', data: @booking }
-                else
-                    render json: { status: 'error', errors: @booking.errors.full_messages }, status: :unprocessable_entity
-                end
+                render json: { status: 'error', errors: @booking.errors.full_messages }, status: :unprocessable_entity
             end
         else
             if @booking.update(status: 'approved')
-                ChatroomChannel.broadcast_to(@booking.chatroom, { type: 'booking_approved', booking: @booking })
+                broadcast_booking_updated
                 render json: { status: 'success', message: 'booking approved' }, status: :ok
             else
                 render json: { status: 'error', errors: @booking.errors.full_messages }, status: :unprocessable_entity
@@ -86,7 +82,12 @@ class BookingsController < ApplicationController
     end
 
     private
-    
+
+    def broadcast_booking_updated
+        ChatroomChannel.broadcast_to(@booking.chatroom, { type: 'booking_updated', booking: @booking })
+        render json: { status: 'success', data: @booking }
+    end
+
     def set_booking
         @booking = Booking.find(params[:id])
     end

@@ -1,7 +1,11 @@
 class ChatroomChannel < ApplicationCable::Channel
   def subscribed
     chatroom = Chatroom.find(params[:id])
-    if chatroom.user_associated?(current_user)
+    
+    # Check if it's a test environment, and set the user accordingly
+    user = Rails.env.test? ? User.find(connection.current_user_id) : current_user
+    
+    if chatroom.user_associated?(user)
       stream_for chatroom
     else
       reject

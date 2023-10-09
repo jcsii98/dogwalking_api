@@ -255,7 +255,7 @@ RSpec.describe DogProfilesController, type: :controller do
                 response_json = JSON.parse(response.body)
 
                 expect(response_json['status']).to eq('success')
-                expect(response_json['message']).to eq('Dog Profile has been archived')
+                expect(response_json['message']).to eq('Dog Profile has been deleted')
             end
         end
 

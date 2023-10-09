@@ -1,7 +1,7 @@
 class DogWalkingJobsController < ApplicationController
     before_action :authenticate_user!
-    before_action :verify_kind, except: [:show, :index]
-
+    before_action :verify_kind, except: [:show, :index, :destroy]
+    
     before_action :set_dog_walking_job, only: [:update, :destroy]
     
     def index
@@ -53,10 +53,14 @@ class DogWalkingJobsController < ApplicationController
     end
 
     def destroy
-        if @dog_walking_job.destroy
-            render json: { status: 'success', message: 'Dog-walking job has been deleted' }
+        if current_user.kind == "1"
+            if @dog_walking_job.destroy
+                render json: { status: 'success', message: 'Dog-walking job has been deleted' }
+            else
+                render json: { status: 'error', errors: @dog_walking_job.errors.full_messages }, status: :unprocessable_entity
+            end
         else
-            render json: { status: 'error', errors: @dog_walking_job.errors.full_messages }, status: :unprocessable_entity
+            render json: { message: 'Access denied. Kind must be 1'}, status: :forbidden
         end
     end
 
