@@ -70,7 +70,7 @@ class DogWalkingJobsController < ApplicationController
     def broadcast_job_updated
         bookings = current_user.walker_bookings
         bookings.each do |booking|
-            ChatroomChannel.broadcast_to(booking.chatroom, { type: 'job_updated', job: @dog_walking_job })
+            ChatroomChannel.broadcast_to(booking.chatroom, { type: 'job_updated', job: @dog_walking_job, booking_id: booking.id })
         end
     end
 
