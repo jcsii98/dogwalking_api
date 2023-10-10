@@ -6,17 +6,25 @@ class BookingsController < ApplicationController
         if current_user.kind == "2"
             @bookings = current_user.owner_bookings
             if @bookings.empty?
-                render json: { error: "No bookings found" }, status: :not_found
+                render json: { message: "No bookings found" }
             else
-                render json: @bookings.as_json(include: { dog_profiles: { only: [:id, :name, :weight, :breed, :age, :sex] } })
+                render json: @bookings.as_json(include: { 
+                    user_owner: { only: [:id, :name]},
+                    user_walker: { only: [:id, :name]},
+                    dog_profiles: { only: [:id, :name, :weight, :breed, :age, :sex] }
+                    })
             end
         else
             @bookings = current_user.walker_bookings
             if @bookings.empty?
-                render json: { error: "No bookings found" }, status: :not_found
+                render json: { message: "No bookings found" }
             else
                 # Handle the case where the user doesn't have a dog_walking_job
-                render json: @bookings.as_json(include: { dog_profiles: { only: [:id, :name, :weight, :breed, :age, :sex] } })
+                render json: @bookings.as_json(include: { 
+                    user_owner: { only: [:id, :name]},
+                    user_walker: { only: [:id, :name]},
+                    dog_profiles: { only: [:id, :name, :weight, :breed, :age, :sex] }
+                    })
             end
         end
     end
@@ -35,7 +43,11 @@ class BookingsController < ApplicationController
             @booking.user_walker = @walker
 
             if @booking.save
-                render json: @booking, status: :created
+                render json: @booking.as_json(include: { 
+                    user_owner: { only: [:id, :name]},
+                    user_walker: { only: [:id, :name]},
+                    dog_profiles: { only: [:id, :name, :weight, :breed, :age, :sex] }
+                    }), status: :created
             else
                 render json: @booking.errors, status: :unprocessable_entity
             end
@@ -48,9 +60,12 @@ class BookingsController < ApplicationController
 
     def show
         @booking_dog_profiles = @booking.booking_dog_profiles
-        
+
         render json: {
-            booking: @booking,
+            booking: @booking.as_json(include: {
+            user_owner: { only: [:id, :name] },
+            user_walker: { only: [:id, :name] }
+            }),
             booking_dog_profiles: @booking_dog_profiles.map { |bdp| { id: bdp.id, dog_profile: bdp.dog_profile } }
         }
     end

@@ -19,12 +19,6 @@ class Booking < ApplicationRecord
 
   enum status: { pending: 'pending', approved: 'approved', cancelled: 'cancelled' }
   
-  private
-
-  def create_chatroom
-    build_chatroom.save
-  end
-
   def calculate_billing_amount
     puts "Calculating billing amount for #{booking_dog_profiles.count} profiles..."
     
@@ -56,6 +50,13 @@ class Booking < ApplicationRecord
 
     self.amount = total_amount
   end
+  private
+
+  def create_chatroom
+    build_chatroom.save
+  end
+
+  
 
   def user_walker_cannot_be_user_owner
     if user_walker&.kind == '2'

@@ -15,9 +15,13 @@ Rails.application.routes.draw do
   resource :user, only: [:show, :update]
  
   resources :dog_profiles
+
   resources :dog_walking_jobs do
     resources :schedules
   end
+
+  patch '/dog_walking_job', to: 'dog_walking_jobs#update'
+  delete '/dog_walking_job', to: 'dog_walking_jobs#destroy'
 
   resources :bookings, only: [:index, :create, :show, :update, :destroy] do
     resource :chatroom, only: [:show] do

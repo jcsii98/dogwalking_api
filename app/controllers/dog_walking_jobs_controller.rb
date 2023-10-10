@@ -15,11 +15,11 @@ class DogWalkingJobsController < ApplicationController
         else
             specified_user = User.find_by(id: params[:user_id])
             if specified_user
-                @dog_walking_jobs = specified_user.dog_walking_jobs.where(archived: false)
-                if @dog_walking_jobs.empty?
-                    render json: { message: "No dog-walking jobs found for this user" }
+                @dog_walking_job = specified_user.dog_walking_job
+                if @dog_walking_job
+                    render json: { data: @dog_walking_job }
                 else
-                    render json: { data: @dog_walking_jobs }
+                    render json: { message: "No dog-walking job found for this user" }
                 end
             else
                 render json: { message: "Specified user not found" }, status: :not_found
@@ -46,6 +46,7 @@ class DogWalkingJobsController < ApplicationController
 
     def update
         if @dog_walking_job.update(dog_walking_job_params)
+            broadcast_job_updated
             render json: { status: 'success', data: @dog_walking_job }
         else
             render json: { status: 'error', errors: @dog_walking_job.errors.full_messages }, status: :unprocessable_entity
@@ -66,6 +67,11 @@ class DogWalkingJobsController < ApplicationController
 
     private
 
+    def broadcast_job_updated
+        ChatroomChannel.broadcast_to(@booking.chatroom, { type: 'job_updated', job: @dog_walking_job })
+        render json: { status: 'success', data: @dog_walking_job}
+    end
+
     def verify_kind
         unless current_user.kind == "1"
             render json: { message: "Access denied. Kind must be '1'"}, status: :forbidden
@@ -77,7 +83,7 @@ class DogWalkingJobsController < ApplicationController
     end
 
     def set_dog_walking_job
-        @dog_walking_job = current_user.dog_walking_jobs.find(params[:id])
+        @dog_walking_job = current_user.dog_walking_job
     end
 
 end
