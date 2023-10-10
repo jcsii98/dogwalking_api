@@ -2,7 +2,7 @@ class ChatroomChannel < ApplicationCable::Channel
   def subscribed
     chatroom = Chatroom.find(params[:id])
     
-    user = Rails.env.test? ? User.find(connection.current_user_id) : current_user
+    user = find_current_user
 
     if chatroom.user_associated?(user)
       stream_for chatroom
@@ -18,13 +18,19 @@ class ChatroomChannel < ApplicationCable::Channel
   def unsubscribed
     chatroom = Chatroom.find(params[:id])
 
-    remove_online_user(chatroom, current_user.id)
+    user = find_current_user
+
+    remove_online_user(chatroom, user.id)
 
     self.class.broadcast_to(chatroom, type: 'users_online', users: online_users(chatroom).to_a)
   end
 
   private
   
+  def find_current_user
+    Rails.env.test? ? User.find(connection.current_user_id) : current_user
+  end
+
   def online_users(chatroom)
     cache_key = "chatroom_#{chatroom.id}_online_users"
     Rails.cache.read(cache_key) || Set.new

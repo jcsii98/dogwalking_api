@@ -2,50 +2,71 @@ require 'rails_helper'
 
 RSpec.describe BookingsController, type: :controller do
   describe 'GET #index' do
-      let(:user_owner) { create(:user, kind: '2', name: 'Joe') }
-      let(:dog_profile) { create(:dog_profile, name: 'Nala') }
-      let(:booking) { create(:booking, user: user_owner, user_owner_name: user_owner.name, user_walker_name: user_walker.name, user_owner: user_owner, user_walker: user_walker, amount: '1000', dog_walking_job: dog_walking_job) }
-      let!(:booking_dog_profile) { create(:booking_dog_profile, booking: booking, dog_profile: dog_profile) }
-      let(:user_walker) { create(:user, kind: '1', name: 'Jay') }
-      let(:dog_walking_job) { create(:dog_walking_job, user: user_walker) }
-
+    let(:user_owner) { create(:user, kind: '2', name: 'Joe') }
+    let(:user_walker) { create(:user, kind: '1') }
+    let!(:dog_walking_job) { create(:dog_walking_job, user: user_walker) }
     context 'when user kind is 2' do
+      context 'when there are extisting bookings' do
+        let!(:booking) { create(:booking, user_walker: user_walker, user_owner: user_owner) }
 
-      before do
-        request.headers.merge!(user_owner.create_new_auth_token)
+        before do
+          request.headers.merge!(user_owner.create_new_auth_token)
+        end
+
+        it 'returns user bookings' do
+          get :index
+          response_json = JSON.parse(response.body)
+
+          expect(response).to have_http_status(200)
+          expect(response_json.length).to eq(1)
+          expect(response_json.first['id']).to eq(booking.id)
+        end
       end
 
-      it 'returns user bookings' do
-        get :index
+      context 'when there are no bookings' do
+        before do
+          request.headers.merge!(user_owner.create_new_auth_token)
+        end
 
-        response_json = JSON.parse(response.body)
+        it 'returns a message' do
+          get :index
+          response_json = JSON.parse(response.body)
 
-        expect(response).to have_http_status(:success)
-        expect(JSON.parse(response.body).length).to eq(1)
-        expect(response_json.first['id']).to eq(booking.id)
+          expect(response).to have_http_status(200)
+          expect(response_json['message']).to eq("No bookings found")
+        end
       end
     end
 
-    context 'when user kind is not 2' do
-
-      before do
-        request.headers.merge!(user_walker.create_new_auth_token)
-      end
-
-      it 'returns bookings associated with dog walking job' do
-        get :index, params: { dog_walking_job_id: dog_walking_job.id }
+    context 'when user kind is 1' do
+      context 'when there are existing bookings' do
+        let!(:booking) { create(:booking, user_walker: user_walker, user_owner: user_owner) }
         
-        response_json = JSON.parse(response.body)
+        before do
+          request.headers.merge!(user_walker.create_new_auth_token)
+        end
 
-        expect(response).to have_http_status(:success)
-        expect(response_json.first['id']).to eq(booking.id)
+        it 'returns bookings associated with user' do
+          get :index
+          response_json = JSON.parse(response.body)
+
+          expect(response).to have_http_status(200)
+          expect(response_json.first['id']).to eq(booking.id)
+        end
       end
 
-      it 'returns error when no dog walking job found' do
-        get :index
+      context 'when there are no existing bookings' do
+        before do
+          request.headers.merge!(user_walker.create_new_auth_token)
+        end
 
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)['error']).to eq("You are not associated with any dog_walking_job.")
+        it 'returns a message' do
+          get :index
+          response_json = JSON.parse(response.body)
+
+          expect(response).to have_http_status(200)
+          expect(response_json['message']).to eq("No bookings found")
+        end
       end
     end
   end
@@ -53,11 +74,11 @@ RSpec.describe BookingsController, type: :controller do
   describe 'POST #create' do
     let(:user) { create(:user, kind: '2') }
  
-    let(:valid_params) { { booking: { dog_walking_job_id: dog_walking_job.id, amount: '0' } } }
-    let(:invalid_params) { { booking: { dog_walking_job_id: 'invalid' } } }
+    let(:valid_params) { { booking: { user_walker_id: user_walker.id } } }
+    let(:invalid_params) { { booking: { user_walker_id: 'invalid' } } }
 
     let(:user_walker) { create(:user, kind: '1') }
-    let(:dog_walking_job) { create(:dog_walking_job, user: user_walker) }
+    let!(:dog_walking_job) { create(:dog_walking_job, user: user_walker) }
 
     before do
       request.headers.merge!(user.create_new_auth_token)
@@ -68,9 +89,10 @@ RSpec.describe BookingsController, type: :controller do
         post :create, params: valid_params
         response_json = JSON.parse(response.body)
 
+        created_booking = Booking.find(response_json['id'])
+
         expect(response).to have_http_status(201)
-        expect(response_json['user_id']).to eq(user.id)
-        expect(response_json['amount']).to eq('0.0')
+        expect(response_json['id']).to eq(created_booking.id)
       end
     end
     context 'with invalid_params' do
@@ -85,12 +107,10 @@ RSpec.describe BookingsController, type: :controller do
   end
 
   describe 'GET #show' do
-    let(:user_owner) { create(:user, kind: '2') }
-    let(:dog_profile) { create(:dog_profile, name: 'Nala') }
-    let(:booking) { create(:booking, user: user_owner, user_owner_name: user_owner.name, user_walker_name: user_walker.name, user_owner: user_owner, user_walker: user_walker, amount: '1000', dog_walking_job: dog_walking_job) }
-    let!(:booking_dog_profile) { create(:booking_dog_profile, booking: booking, dog_profile: dog_profile) }
+    let(:user_owner) { create(:user, kind: '2', name: 'Joe') }
     let(:user_walker) { create(:user, kind: '1') }
-    let(:dog_walking_job) { create(:dog_walking_job, user: user_walker) }
+    let!(:dog_walking_job) { create(:dog_walking_job, user: user_walker) }
+    let!(:booking) { create(:booking, user_walker: user_walker, user_owner: user_owner) }
     
     before do
       request.headers.merge!(user_owner.create_new_auth_token)
@@ -104,17 +124,11 @@ RSpec.describe BookingsController, type: :controller do
   end
 
   describe 'PUT #update' do
-    let(:user_owner) { create(:user, kind: '2') }
+    let(:user_owner) { create(:user, kind: '2', name: 'Joe') }
     let(:user_walker) { create(:user, kind: '1') }
-
-    # Create a dog walking job before using it to create the booking
     let!(:dog_walking_job) { create(:dog_walking_job, user: user_walker) }
-
-     # Define dog_profile here
+    let!(:booking) { create(:booking, user_walker: user_walker, user_owner: user_owner, duration: 1) }
     let(:dog_profile) { create(:dog_profile, name: 'Buddy', breed: 'Golden Retriever', age: 2, sex: 'Male', weight: 70, user: user_owner) }
-
-    # Create a booking associated with user_owner and user_walker
-    let(:booking) { create(:booking, user: user_owner, user_owner: user_owner, user_walker: user_walker, duration: '1', dog_walking_job: dog_walking_job) }
 
     # Use the booking in your booking_dog_profile creation
     let!(:booking_dog_profile) { create(:booking_dog_profile, booking: booking, dog_profile: dog_profile) }
@@ -157,7 +171,8 @@ RSpec.describe BookingsController, type: :controller do
     end
 
     context 'when adding dog_profiles' do
-      let(:dog_profile_3) { create(:dog_profile, name: 'Riley', weight: '10') }
+      let!(:dog_profile_3) { create(:dog_profile, name: 'Rover', breed: 'Golden Retriever', age: 2, sex: 'Male', weight: 70, user: user_owner) }
+
 
       before do
         create(:booking_dog_profile, booking: booking, dog_profile: dog_profile_3)
@@ -166,11 +181,12 @@ RSpec.describe BookingsController, type: :controller do
       it 'updates the values of the booking with the additional dog profile' do
         booking.reload
         puts "Number of booking_dog_profiles: #{booking.booking_dog_profiles.count}"
-
+        expected_amount = 600
         booking.save!
 
-        expected_amount = 400
         
+        
+        expect(booking.booking_dog_profiles.count).to eq(2)
         expect(booking.amount.to_f).to eq(expected_amount)
       end
     end
@@ -194,12 +210,10 @@ RSpec.describe BookingsController, type: :controller do
   end
 
   describe 'DELETE #destroy' do
-      let(:user_owner) { create(:user, kind: '2', name: 'Joe') }
-      let(:dog_profile) { create(:dog_profile, name: 'Nala') }
-      let(:booking) { create(:booking, user: user_owner, user_owner_name: user_owner.name, user_walker_name: user_walker.name, user_owner: user_owner, user_walker: user_walker, amount: '1000', dog_walking_job: dog_walking_job) }
-      let!(:booking_dog_profile) { create(:booking_dog_profile, booking: booking, dog_profile: dog_profile) }
-      let(:user_walker) { create(:user, kind: '1', name: 'Jay') }
-      let(:dog_walking_job) { create(:dog_walking_job, user: user_walker) }
+    let(:user_owner) { create(:user, kind: '2', name: 'Joe') }
+    let(:user_walker) { create(:user, kind: '1') }
+    let!(:dog_walking_job) { create(:dog_walking_job, user: user_walker) }
+    let!(:booking) { create(:booking, user_walker: user_walker, user_owner: user_owner) }
     before do
       request.headers.merge!(user_owner.create_new_auth_token)
       delete :destroy, params: { id: booking.id }

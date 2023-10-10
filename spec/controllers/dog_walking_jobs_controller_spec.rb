@@ -3,14 +3,13 @@ require 'rails_helper'
 RSpec.describe DogWalkingJobsController, type: :controller do
     describe 'GET #index' do
         context 'when a user is authenticated and has the correct kind' do
-            let(:user) { create(:user, kind: '1') }
-            let(:dog_walking_job_1) { build(:dog_walking_job, user: user) }
-            let(:dog_walking_job_2) { build(:dog_walking_job, user: user) }
+            let(:user_walker) { create(:user, kind: '1') }
+            let(:dog_walking_job) { build(:dog_walking_job, user: user_walker) }
+            
 
             before do
-                dog_walking_job_1.save!
-                dog_walking_job_2.save!
-                request.headers.merge!(user.create_new_auth_token)
+                dog_walking_job.save!
+                request.headers.merge!(user_walker.create_new_auth_token)
                 get :index
             end
 
@@ -18,11 +17,10 @@ RSpec.describe DogWalkingJobsController, type: :controller do
                 expect(response).to have_http_status(200)
             end
 
-            it 'returns a list of unarchived dog profiles as JSON' do
-                dog_walking_jobs_json = JSON.parse(response.body)
-                expect(dog_walking_jobs_json['data'].length).to eq(2)
-                expect(dog_walking_job_1.user).to eq(user)
-                expect(dog_walking_job_2.user).to eq(user)
+            it 'returns a user_walkers dog_walking_job' do
+                dog_walking_job_json = JSON.parse(response.body)
+                expect(dog_walking_job_json['data']['id']).to eq(dog_walking_job.id)
+                expect(dog_walking_job.user).to eq(user_walker)
             end
         end
         context 'when a user is not authenticated' do

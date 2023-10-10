@@ -36,13 +36,13 @@ RSpec.describe User, type: :model do
       expect(association.macro).to eq(:has_many)
     end
 
-    it 'has many dog_walking_jobs' do
-      association = described_class.reflect_on_association(:dog_walking_jobs)
+    it 'has many owner_bookings' do
+      association = described_class.reflect_on_association(:owner_bookings)
       expect(association.macro).to eq(:has_many)
     end
 
-    it 'has many bookings' do
-      association = described_class.reflect_on_association(:bookings)
+    it 'has many walker_bookings' do
+      association = described_class.reflect_on_association(:walker_bookings)
       expect(association.macro).to eq(:has_many)
     end
   end

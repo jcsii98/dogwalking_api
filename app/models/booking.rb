@@ -20,7 +20,8 @@ class Booking < ApplicationRecord
   enum status: { pending: 'pending', approved: 'approved', cancelled: 'cancelled' }
   
   def calculate_billing_amount
-    puts "Calculating billing amount for #{booking_dog_profiles.count} profiles..."
+    puts "Inside calculate_billing_amount"
+    puts "Dog Profiles Count: #{booking_dog_profiles.count}"
     
     # If no profiles or no duration, set the amount to 0
     unless booking_dog_profiles.any? && duration.is_a?(Numeric)

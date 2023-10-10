@@ -3,8 +3,8 @@ require 'rails_helper'
 RSpec.describe ChatroomsController, type: :controller do
     let(:user_walker) { create(:user, kind: '1') }
     let(:user_owner) { create(:user, kind: '2') }
-    let(:dog_walking_job) { create(:dog_walking_job, user: user_walker) }
-    let(:booking) { create(:booking, dog_walking_job_id: dog_walking_job.id, user: user_owner) }
+    let!(:dog_walking_job) { create(:dog_walking_job, user: user_walker) }
+    let(:booking) { create(:booking, user_walker: user_walker, user_owner: user_owner) }
     let!(:message) { create(:message, chatroom_id: booking.chatroom.id, user: user_walker, content: 'Hi!') }
     describe 'GET #show' do
         context 'when an associated user is authenticated' do

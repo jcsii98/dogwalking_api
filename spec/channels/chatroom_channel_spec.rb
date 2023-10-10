@@ -1,13 +1,17 @@
 require 'rails_helper'
 
 RSpec.describe ChatroomChannel, type: :channel do
-  let(:user) { create(:user) }
-  let(:booking) { create(:booking) }
+  let(:user_owner) { create(:user, kind: '2') }
+  let(:user_walker) { create(:user, kind: '1') }
+  let(:dog_walking_job) { create(:dog_walking_job, user: user_walker) }
+  let(:booking) { create(:booking, user_walker: user_walker, user_owner: user_owner) }
+  
   let(:chatroom) { create(:chatroom, booking: booking) }
 
   before do
     # Connect to the channel with the user
-    stub_connection(current_user_id: user.id)
+    dog_walking_job
+    stub_connection(current_user_id: user_owner.id)
   end
 
   it 'successfully subscribes to the chatroom when the user is associated' do
