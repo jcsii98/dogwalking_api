@@ -6,11 +6,11 @@ class DogWalkingJobsController < ApplicationController
     
     def index
         if current_user.kind == "1"
-            @dog_walking_jobs = current_user.dog_walking_jobs
-            if @dog_walking_jobs.empty?
-                render json: { message: "No dog-walking jobs found for this user" }
+            @dog_walking_job = current_user.dog_walking_job
+            if @dog_walking_job
+                render json: { data: @dog_walking_job }
             else
-                render json: { data: @dog_walking_jobs}
+                render json: { message: "No dog-walking job found for this user" }
             end
         else
             specified_user = User.find_by(id: params[:user_id])
@@ -28,7 +28,7 @@ class DogWalkingJobsController < ApplicationController
     end
 
     def create
-        @dog_walking_job = current_user.dog_walking_jobs.new(dog_walking_job_params)
+        @dog_walking_job = current_user.create_dog_walking_job(dog_walking_job_params)
         if @dog_walking_job.save
             render json: @dog_walking_job, status: :created
         else

@@ -4,42 +4,46 @@ class BookingsController < ApplicationController
 
     def index
         if current_user.kind == "2"
-            @bookings = current_user.bookings
-            render json: @bookings
+            @bookings = current_user.owner_bookings
+            if @bookings.empty?
+                render json: { error: "No bookings found" }, status: :not_found
+            else
+                render json: @bookings.as_json(include: { dog_profiles: { only: [:id, :name, :weight, :breed, :age, :sex] } })
+            end
         else
-            dog_walking_job = current_user.dog_walking_jobs.find_by(id: params[:dog_walking_job_id])
-            
-            if dog_walking_job
-                @bookings = dog_walking_job.bookings
-                render json: @bookings
+            @bookings = current_user.walker_bookings
+            if @bookings.empty?
+                render json: { error: "No bookings found" }, status: :not_found
             else
                 # Handle the case where the user doesn't have a dog_walking_job
-                render json: { error: "You are not associated with any dog_walking_job." }, status: :unprocessable_entity
+                render json: @bookings.as_json(include: { dog_profiles: { only: [:id, :name, :weight, :breed, :age, :sex] } })
             end
         end
     end
 
 
     def create
-        dog_walking_job = DogWalkingJob.find_by(id: params[:booking][:dog_walking_job_id])
+        if current_user.kind == '2'
+            @booking = current_user.owner_bookings.build(booking_params)
 
-        unless dog_walking_job
-            render json: { error: "Dog-walking Job not found" }, status: :not_found
-            return
-        end
+            @walker = User.find_by(id: booking_params[:user_walker_id])
+            if @walker.nil?
+                render json: { error: "Walker not found" }, status: :not_found
+                return
+            end
 
-        @booking = current_user.bookings.build(booking_params)
-        @booking.user_owner = current_user
-        @booking.user_walker = dog_walking_job.user
-        @booking.user_owner_name = current_user.name
-        @booking.user_walker_name = dog_walking_job.user.name
+            @booking.user_walker = @walker
 
-        
-        if @booking.save
-            render json: @booking, status: :created
+            if @booking.save
+                render json: @booking, status: :created
+            else
+                render json: @booking.errors, status: :unprocessable_entity
+            end
         else
-            render json: @booking.errors, status: :unprocessable_entity
+            render json: { error: "You are not authorized" }, status: :forbidden
         end
+    rescue ActiveRecord::RecordNotUnique
+        render json: { error: "A dog can't be added to the same booking twice" }
     end
 
     def show
@@ -70,6 +74,8 @@ class BookingsController < ApplicationController
                 render json: { status: 'error', errors: @booking.errors.full_messages }, status: :unprocessable_entity
             end
         end
+        rescue ActiveRecord::RecordNotUnique
+        render json: { error: "A dog can't be added to the same booking twice" }
     end
 
     def destroy
@@ -94,12 +100,11 @@ class BookingsController < ApplicationController
 
     def booking_params
         params.require(:booking).permit(
-        :dog_walking_job_id,
         :date,
         :amount,
         :status,
         :duration,
-        :archived,
+        :user_walker_id,
         booking_dog_profiles_attributes: [:id, :dog_profile_id, :_destroy]
         )
     end

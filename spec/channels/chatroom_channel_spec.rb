@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe ChatroomChannel, type: :channel do
   let(:user) { create(:user) }
-  let(:booking) { create(:booking, user: user) }
+  let(:booking) { create(:booking) }
   let(:chatroom) { create(:chatroom, booking: booking) }
 
   before do

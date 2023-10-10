@@ -1,7 +1,4 @@
 class Booking < ApplicationRecord
-  belongs_to :dog_walking_job
-  belongs_to :user
-
   belongs_to :user_owner, class_name: 'User', foreign_key: 'user_owner_id'
   belongs_to :user_walker, class_name: 'User', foreign_key: 'user_walker_id'
 
@@ -17,8 +14,11 @@ class Booking < ApplicationRecord
   before_save :calculate_billing_amount
 
   validates :duration, numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
+  validate :user_walker_cannot_be_user_owner
+  validate :user_walker_must_have_dog_walking_job
 
-
+  enum status: { pending: 'pending', approved: 'approved', cancelled: 'cancelled' }
+  
   private
 
   def create_chatroom
@@ -39,7 +39,7 @@ class Booking < ApplicationRecord
     booking_dog_profiles.each do |booking_dog_profile|
       dog_profile = booking_dog_profile.dog_profile
       weight = dog_profile.weight
-      job = dog_walking_job
+      job = self.user_walker.dog_walking_job
       puts "Dog Profile: #{dog_profile.name}, Weight: #{weight}"
 
       if weight < 20
@@ -57,5 +57,16 @@ class Booking < ApplicationRecord
     self.amount = total_amount
   end
 
+  def user_walker_cannot_be_user_owner
+    if user_walker&.kind == '2'
+      errors.add(:user_walker, "cannot be of kind '2'")
+    end
+  end
+
+  def user_walker_must_have_dog_walking_job
+    unless user_walker&.dog_walking_job
+      errors.add(:user_walker, "must have an associated dog_walking_job")
+    end
+  end
   
 end

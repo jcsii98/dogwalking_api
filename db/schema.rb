@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_10_06_125258) do
+ActiveRecord::Schema[7.0].define(version: 2023_10_10_105708) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -45,39 +45,30 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_06_125258) do
     t.boolean "archived", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["booking_id", "dog_profile_id"], name: "index_booking_dog_profiles_on_booking_id_and_dog_profile_id", unique: true
     t.index ["booking_id"], name: "index_booking_dog_profiles_on_booking_id"
     t.index ["dog_profile_id"], name: "index_booking_dog_profiles_on_dog_profile_id"
   end
 
   create_table "bookings", force: :cascade do |t|
-    t.bigint "dog_walking_job_id", null: false
     t.date "date"
     t.decimal "amount"
     t.string "status", default: "pending"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
     t.integer "duration"
     t.boolean "archived", default: false
     t.bigint "user_owner_id", null: false
     t.bigint "user_walker_id", null: false
-    t.string "user_owner_name", null: false
-    t.string "user_walker_name", null: false
-    t.index ["dog_walking_job_id"], name: "index_bookings_on_dog_walking_job_id"
-    t.index ["user_id"], name: "index_bookings_on_user_id"
     t.index ["user_owner_id"], name: "index_bookings_on_user_owner_id"
     t.index ["user_walker_id"], name: "index_bookings_on_user_walker_id"
   end
 
   create_table "chatrooms", force: :cascade do |t|
     t.bigint "booking_id", null: false
-    t.bigint "walker_user_id"
-    t.bigint "owner_user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["booking_id"], name: "index_chatrooms_on_booking_id"
-    t.index ["owner_user_id"], name: "index_chatrooms_on_owner_user_id"
-    t.index ["walker_user_id"], name: "index_chatrooms_on_walker_user_id"
   end
 
   create_table "dog_profiles", force: :cascade do |t|
@@ -163,13 +154,9 @@ ActiveRecord::Schema[7.0].define(version: 2023_10_06_125258) do
 
   add_foreign_key "booking_dog_profiles", "bookings"
   add_foreign_key "booking_dog_profiles", "dog_profiles"
-  add_foreign_key "bookings", "dog_walking_jobs"
-  add_foreign_key "bookings", "users"
   add_foreign_key "bookings", "users", column: "user_owner_id"
   add_foreign_key "bookings", "users", column: "user_walker_id"
   add_foreign_key "chatrooms", "bookings"
-  add_foreign_key "chatrooms", "users", column: "owner_user_id"
-  add_foreign_key "chatrooms", "users", column: "walker_user_id"
   add_foreign_key "dog_profiles", "users"
   add_foreign_key "dog_walking_jobs", "users"
   add_foreign_key "messages", "chatrooms"

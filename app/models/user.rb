@@ -12,9 +12,10 @@ class User < ActiveRecord::Base
 
   has_many :dog_profiles
 
-  has_many :dog_walking_jobs
+  has_one :dog_walking_job
 
-  has_many :bookings
+  has_many :owner_bookings, class_name: 'Booking', foreign_key: 'user_owner_id'
+  has_many :walker_bookings, class_name: 'Booking', foreign_key: 'user_walker_id'
 
   validates :name, presence: true, length: { minimum: 1 }
   validates :kind, inclusion: { in: %w(1 2), message: "must be '1' or '2'" }, if: -> { kind.present? }

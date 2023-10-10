@@ -1,9 +1,7 @@
 FactoryBot.define do
   factory :booking do
-    dog_walking_job
     date { Faker::Date.forward }
     amount {  }
-    user
     duration { rand(1..5) * 15 } # Duration in intervals of 15 min
     user_owner_id { create(:user).id }
     user_walker_id { create(:user).id }
