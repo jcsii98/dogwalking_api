@@ -15,6 +15,11 @@ class UsersSearchService
   end
   def search_within_radius(radius)
     user_location = @user.cached_geocode
+
+    unless user_location
+      return { error: "User location not available" }
+    end
+
     degrees_per_km = 1 / 111.32
 
     lat_min = user_location.split(',')[0].to_f - (radius * degrees_per_km)
