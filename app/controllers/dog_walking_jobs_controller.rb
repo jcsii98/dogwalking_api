@@ -68,8 +68,10 @@ class DogWalkingJobsController < ApplicationController
     private
 
     def broadcast_job_updated
-        ChatroomChannel.broadcast_to(@booking.chatroom, { type: 'job_updated', job: @dog_walking_job })
-        render json: { status: 'success', data: @dog_walking_job}
+        bookings = current_user.walker_bookings
+        bookings.each do |booking|
+            ChatroomChannel.broadcast_to(booking.chatroom, { type: 'job_updated', job: @dog_walking_job })
+        end
     end
 
     def verify_kind
