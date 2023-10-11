@@ -1,6 +1,7 @@
 class DogProfilesController < ApplicationController
     before_action :authenticate_user!
-    before_action :set_dog_profile, only: [:update, :destroy, :show]
+    before_action :set_dog_profile, only: [:show]
+    before_action :set_dog_profile_for_owner, only: [:update, :destroy]
     before_action :verify_kind, only: [:index, :create, :update, :destroy] # kind = 2
     
     def index
@@ -27,7 +28,7 @@ class DogProfilesController < ApplicationController
         if @dog_profile
             render json: { status: 'success', data: @dog_profile }, status: :ok
         else
-            render json: {status: 'error', message: 'Dog profile not found' }, status: :not_found
+            render json: { status: 'error', message: 'Dog profile not found' }, status: :not_found
         end
     end
 
@@ -60,7 +61,14 @@ class DogProfilesController < ApplicationController
     end
 
     def set_dog_profile
+        @dog_profile = DogProfile.find_by(id: params[:id])
+    end
+
+    def set_dog_profile_for_owner
         @dog_profile = current_user.dog_profiles.find_by(id: params[:id])
+        unless @dog_profile
+            render json: { status: 'error', message: 'Dog profile not found' }, status: :not_found
+        end
     end
 
 end
