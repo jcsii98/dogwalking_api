@@ -27,7 +27,7 @@ class UsersSearchService
     lon_min = user_location.split(',')[1].to_f - (radius * degrees_per_km)
     lon_max = user_location.split(',')[1].to_f + (radius * degrees_per_km)
 
-    nearby_users = User.joins(:dog_walking_job) # Join with dog_walking_jobs
+    nearby_users = User.joins(:dog_walking_job)
                       .where(
                         "CAST(SPLIT_PART(users.cached_geocode, ',', 1) AS FLOAT) BETWEEN ? AND ? AND CAST(SPLIT_PART(users.cached_geocode, ',', 2) AS FLOAT) BETWEEN ? AND ? AND users.kind != ? AND users.status != ?",
                         lat_min, lat_max, lon_min, lon_max, @user.kind, 'pending'
